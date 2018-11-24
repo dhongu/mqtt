@@ -28,7 +28,7 @@ def mqtt_on_message(client, userdata, msg):
 
 def mqtt_init():
     client_id = 'rc522'
-    client = mqtt.Client(client_id=client_id)
+    client = mqtt.Client()
     client.on_message = mqtt_on_message
     return client
 
@@ -56,7 +56,7 @@ def main():
             # If we have the UID, continue
             if status == MIFAREReader.MI_OK:
                 card = " ".join(["{:02x}".format(x) for x in uid])
-                print("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+                print("Card read UID: %s " % card)
                 client.publish(EVENT_TOPIC, '{"card":%s}' % card, qos=1, retain=False)
         except KeyboardInterrupt:
             print("End")
