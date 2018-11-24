@@ -3,7 +3,7 @@
 
 import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO
-from . import MFRC522
+import MFRC522
 import signal
 
 STATUS_TOPIC = 'rc522/status'
