@@ -46,7 +46,8 @@ def main():
     # This loop keeps checking for chips. If one is near it will get the UID and authenticate
     while continue_reading:
         try:
-            client.publish(STATUS_TOPIC, "rc522 is online", qos=1, retain=True)
+
+
             # Scan for cards
             (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
@@ -58,6 +59,8 @@ def main():
             (status, uid) = MIFAREReader.MFRC522_Anticoll()
             # If we have the UID, continue
             if status == MIFAREReader.MI_OK:
+                client.reconnect()
+                client.publish(STATUS_TOPIC, "rc522 is online", qos=1, retain=True)
                 card = " ".join(["{:02x}".format(x) for x in uid])
                 print("Card read UID: %s " % card)
                 client.publish(EVENT_TOPIC, '{"card":%s}' % card )
