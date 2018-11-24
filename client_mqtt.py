@@ -34,6 +34,8 @@ def mqtt_init():
 
 
 def main():
+    global continue_reading
+    continue_reading = True
     client = mqtt_init()
     client.connect("192.168.0.3", 1883, 60)
     client.subscribe('test')
