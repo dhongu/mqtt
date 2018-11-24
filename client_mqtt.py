@@ -67,10 +67,10 @@ def main():
         except KeyboardInterrupt:
             print("End")
             continue_reading = False
-        finally:
-            client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
-            client.disconnect()
-            GPIO.cleanup()
+
+    client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
+    client.disconnect()
+    GPIO.cleanup()
 
 
 if __name__ == "__main__":
