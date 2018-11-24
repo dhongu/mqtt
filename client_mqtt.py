@@ -65,7 +65,7 @@ def main():
             if status == MIFAREReader.MI_OK:
                 card = " ".join(["{:02x}".format(x) for x in uid])
                 print("Card read UID: %s " % card)
-                client.publish(EVENT_TOPIC, '{"card":"%s"}' % card )
+                client.publish(EVENT_TOPIC, '{"card_code":"%s"}' % card )
                 client.subscribe(EVENT_TOPIC+'/'+card)
         except KeyboardInterrupt:
             print("End")
