@@ -6,8 +6,8 @@ import RPi.GPIO as GPIO
 import MFRC522
 import signal
 
-STATUS_TOPIC = 'rc522/status'
-EVENT_TOPIC = 'rc522/events'
+STATUS_TOPIC = 'rc522/01/status'
+EVENT_TOPIC = 'rc522/01'
 HOST = "localhost"
 PORT = 1883
 
@@ -24,6 +24,12 @@ def end_read(signal, frame):
 
 def mqtt_on_message(client, userdata, msg):
     print(msg.topic + " " + str(msg.payload))
+    try:
+        controller_name, reader_code, card = msg.topic.split('/')
+        if 'granted' in msg:
+            print ('granted for card %s' % card )
+    except:
+        pass
 
 
 def mqtt_init():
@@ -40,7 +46,7 @@ def main():
     client.connect("192.168.0.3", 1883, 60)
 
     client.loop_start()
-    client.subscribe('test')
+    print("RFID is ready")
     client.publish(STATUS_TOPIC, "rc522 is online", qos=1, retain=True)
     MIFAREReader = MFRC522.MFRC522()
     # This loop keeps checking for chips. If one is near it will get the UID and authenticate
@@ -60,11 +66,13 @@ def main():
                 card = " ".join(["{:02x}".format(x) for x in uid])
                 print("Card read UID: %s " % card)
                 client.publish(EVENT_TOPIC, '{"card":%s}' % card )
+                client.subscribe(EVENT_TOPIC+'/'+card)
         except KeyboardInterrupt:
             print("End")
             continue_reading = False
 
     client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
+    client.loop_stop()
     client.disconnect()
     GPIO.cleanup()
 
