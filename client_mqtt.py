@@ -38,8 +38,10 @@ def main():
     continue_reading = True
     client = mqtt_init()
     client.connect("192.168.0.3", 1883, 60)
-    client.subscribe(EVENT_TOPIC,'test')
+
     client.loop_start()
+    client.subscribe('test')
+
     MIFAREReader = MFRC522.MFRC522()
     # This loop keeps checking for chips. If one is near it will get the UID and authenticate
     while continue_reading:
@@ -58,7 +60,7 @@ def main():
             if status == MIFAREReader.MI_OK:
                 card = " ".join(["{:02x}".format(x) for x in uid])
                 print("Card read UID: %s " % card)
-                client.publish(EVENT_TOPIC, '{"card":%s}' % card, qos=1, retain=False)
+                client.publish(EVENT_TOPIC, '{"card":%s}' % card )
         except KeyboardInterrupt:
             print("End")
             continue_reading = False
