@@ -57,8 +57,8 @@ def main():
                 client.publish(EVENT_TOPIC, uid, qos=1, retain=False)
         except KeyboardInterrupt:
             print("End")
+            continue_reading = False
         finally:
-
             client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
             client.disconnect()
             GPIO.cleanup()
