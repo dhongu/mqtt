@@ -3,35 +3,35 @@
 
 import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO
-import MFRC522
+from . import MFRC522
 import signal
-
 
 STATUS_TOPIC = 'rc522/status'
 EVENT_TOPIC = 'rc522/events'
 HOST = "localhost"
 PORT = 1883
 
-
 continue_reading = True
 
+
 # Capture SIGINT for cleanup when the script is aborted
-def end_read(signal,frame):
+def end_read(signal, frame):
     global continue_reading
-    print ("Ctrl+C captured, ending read.")
+    print("Ctrl+C captured, ending read.")
     continue_reading = False
     GPIO.cleanup()
 
 
 def mqtt_on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    print(msg.topic + " " + str(msg.payload))
 
 
 def mqtt_init():
     client_id = 'rc522'
-    client = mqtt.Client( client_id=client_id)
+    client = mqtt.Client(client_id=client_id)
     client.on_message = mqtt_on_message
     return client
+
 
 def main():
     client = mqtt_init()
@@ -45,23 +45,22 @@ def main():
 
         # If a card is found
         if status == MIFAREReader.MI_OK:
-            print ("Card detected")
-
+            print("Card detected")
 
         # Get the UID of the card
         (status, uid) = MIFAREReader.MFRC522_Anticoll()
         # If we have the UID, continue
         if status == MIFAREReader.MI_OK:
-            print ("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+            print("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+            client.publish(EVENT_TOPIC, uid, qos=1, retain=False)
     except KeyboardInterrupt:
-        print ("End")
+        print("End")
     finally:
 
-        client.publish( STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
+        client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
         client.disconnect()
         GPIO.cleanup()
 
+
 if __name__ == "__main__":
     main()
-
-
