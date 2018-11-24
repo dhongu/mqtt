@@ -39,27 +39,29 @@ def main():
     client.subscribe('test')
     client.loop_start()
     MIFAREReader = MFRC522.MFRC522()
-    try:
-        # Scan for cards
-        (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+    # This loop keeps checking for chips. If one is near it will get the UID and authenticate
+    while continue_reading:
+        try:
+            # Scan for cards
+            (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
 
-        # If a card is found
-        if status == MIFAREReader.MI_OK:
-            print("Card detected")
+            # If a card is found
+            if status == MIFAREReader.MI_OK:
+                print("Card detected")
 
-        # Get the UID of the card
-        (status, uid) = MIFAREReader.MFRC522_Anticoll()
-        # If we have the UID, continue
-        if status == MIFAREReader.MI_OK:
-            print("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
-            client.publish(EVENT_TOPIC, uid, qos=1, retain=False)
-    except KeyboardInterrupt:
-        print("End")
-    finally:
+            # Get the UID of the card
+            (status, uid) = MIFAREReader.MFRC522_Anticoll()
+            # If we have the UID, continue
+            if status == MIFAREReader.MI_OK:
+                print("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+                client.publish(EVENT_TOPIC, uid, qos=1, retain=False)
+        except KeyboardInterrupt:
+            print("End")
+        finally:
 
-        client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
-        client.disconnect()
-        GPIO.cleanup()
+            client.publish(STATUS_TOPIC, "rc522 dead", qos=1, retain=True)
+            client.disconnect()
+            GPIO.cleanup()
 
 
 if __name__ == "__main__":
