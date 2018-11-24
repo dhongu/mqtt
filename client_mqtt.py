@@ -55,8 +55,9 @@ def main():
             (status, uid) = MIFAREReader.MFRC522_Anticoll()
             # If we have the UID, continue
             if status == MIFAREReader.MI_OK:
+                card = " ".join(["{:02x}".format(x) for x in uid])
                 print("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
-                client.publish(EVENT_TOPIC, uid, qos=1, retain=False)
+                client.publish(EVENT_TOPIC, '{"card":%s}' % card, qos=1, retain=False)
         except KeyboardInterrupt:
             print("End")
             continue_reading = False
